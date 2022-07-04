@@ -32,6 +32,7 @@ ethereum-types = "0.4"
 hex = "0.4.3"
 warp = "0.3"
 uuid = { version = "0.8", features = ["v4"] }
+rocket_cors = { version = "0.5.1", default-features = false }
 
 
 

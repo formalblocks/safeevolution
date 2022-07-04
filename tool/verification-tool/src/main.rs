@@ -20,6 +20,7 @@ use std::{path::Path};
 use web3::{types::{Address}};
 use std::str::FromStr;
 use std::fs;
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Guard, Responder};
 
 #[get("/listupgrades/<wallet_address>")]
 fn list_upgrades(wallet_address: String) -> Result<Json<Vec<Logs>>, BadRequest<String>> {
@@ -30,27 +31,27 @@ fn list_upgrades(wallet_address: String) -> Result<Json<Vec<Logs>>, BadRequest<S
 #[post("/getconstructorarguments", format = "json", data = "<payload>")]
 fn get_constructor_arguments(payload: Json<ContructorArguments>) -> Result<Json<Vec<AssignedVariable>>, BadRequest<String>> {
     
-    for file in &payload.implementation_files {
-        write_file(&file.content, &file.name);
-    }
-    let impl_url = format!("contracts/input/{}", &payload.file_to_be_verified);
-    let imp = get_implementation(Path::new(&impl_url));
+    // for file in &payload.implementation_files {
+    //     write_file(&file.content, &file.name);
+    // }
+    // let impl_url = format!("contracts/input/{}", &payload.file_to_be_verified);
+    // let imp = get_implementation(Path::new(&impl_url));
     
-    if let Err(error) = &imp {
-       return Err(BadRequest(Some(error.to_string())));
-    }
+    // if let Err(error) = &imp {
+    //    return Err(BadRequest(Some(error.to_string())));
+    // }
 
-    let constructor_arguments = get_number_argument_constructor(&imp.unwrap()).unwrap();
+    // let constructor_arguments = get_number_argument_constructor(&imp.unwrap()).unwrap();
 
     let mut parameters_and_values: Vec<AssignedVariable> = Vec::new();
 
-    for i in 0..constructor_arguments.len() {
-        let variable_value = AssignedVariable {
-            variable_declaration: constructor_arguments[i].clone(),
-            variable_value: "".to_owned(),
-        };
-        parameters_and_values.push(variable_value);
-    }
+    // for i in 0..constructor_arguments.len() {
+    //     let variable_value = AssignedVariable {
+    //         variable_declaration: constructor_arguments[i].clone(),
+    //         variable_value: "".to_owned(),
+    //     };
+    //     parameters_and_values.push(variable_value);
+    // }
     Ok(Json(parameters_and_values))
 }
 
@@ -207,15 +208,28 @@ fn save_log(payload: Json<Logs>) -> Result<(), BadRequest<String>> {
 //     Ok(())
 // }
 
+
+
+
 #[launch]
 fn rocket() -> _ {
+    let cors = rocket_cors::CorsOptions {
+        allowed_origins: AllowedOrigins::all(),
+        allowed_methods: vec![Method::Get,Method::Post,Method::Patch].into_iter().map(From::from).collect(),
+        allowed_headers: AllowedHeaders::all(),
+        allow_credentials: true,
+        ..Default::default()
+    }
+    .to_cors()?;
+
     rocket::build()
-    .attach(CORS)
     .mount("/", routes![list_upgrades])
     .mount("/", routes![get_constructor_arguments])
     .mount("/", routes![upgrade_contract_file])
     .mount("/", routes![get_contract])
     .mount("/", routes![save_log])
+    .mount("/", rocket_cors::catch_all_options_routes())
+    .manage(cors)
 }
 
 
@@ -270,20 +284,16 @@ pub struct CORS;
 impl Fairing for CORS {
     fn info(&self) -> Info {
         Info {
-            name: "Cross-Origin-Resource-Sharing Middleware",
-            kind: Kind::Response,
+            name: "Add CORS headers to responses",
+            kind: Kind::Response
         }
     }
 
     async fn on_response<'r>(&self,request: &'r Request<'_>,response: &mut Response<'r>) {
         response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
-        response.set_header(Header::new("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT"));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"));    
-
-        if response.status() == Status::NotFound && request.method() == Method::Options {
-            response.set_status(Status::NoContent);
-        }
     }
 }
 
