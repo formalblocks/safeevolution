@@ -2,7 +2,7 @@
 use dotenv::dotenv;
 use std::env;
 use postgres::{Client, NoTls};
-use rocket::serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
 
 

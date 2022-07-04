@@ -1,4 +1,9 @@
-#[macro_use] extern crate rocket;
+// #[macro_use] extern crate rocket;
+
+#![feature(proc_macro_hygiene, decl_macro)]
+use rocket;
+use rocket_cors;
+
 
 use crate::{db::{select_specifications, select_on_table, insert_on_table, Logs}};
 use crate::{util::{write_file,get_number_argument_constructor,AssignedVariable, get_compiled_files, delete_dir_contents, copy_dir_contents}};
@@ -11,7 +16,7 @@ mod deployer;
 mod checker;
 mod proxy;
 mod old_main_j;
-use rocket::serde::{Serialize, Deserialize, json::Json};
+// use rocket::serde::{Serialize, Deserialize, json::Json};
 use rocket::http::Header;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::{http::Method, http::Status, Request, Response};
@@ -20,12 +25,19 @@ use std::{path::Path};
 use web3::{types::{Address}};
 use std::str::FromStr;
 use std::fs;
-use rocket_cors::{AllowedHeaders, AllowedOrigins, Guard, Responder};
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Error, Guard, Responder};
+use rocket_contrib::json::Json;
+use rocket::{get, post,options, routes};
+use serde::{Serialize, Deserialize};
+
 
 #[get("/listupgrades/<wallet_address>")]
 fn list_upgrades(wallet_address: String) -> Result<Json<Vec<Logs>>, BadRequest<String>> {
     let logs = select_specifications(&wallet_address).unwrap();
     Ok(Json(logs))
+}
+#[options("/getconstructorarguments")]
+fn get_constructor_arguments_options() {
 }
 
 #[post("/getconstructorarguments", format = "json", data = "<payload>")]
@@ -57,7 +69,7 @@ fn get_constructor_arguments(payload: Json<ContructorArguments>) -> Result<Json<
 
 
 #[post("/getcontract", format = "json", data = "<payload>")]
-async fn get_contract(payload: Json<DeployContract>) -> Result<Json<Vec<ContractCompiled>>, BadRequest<String>> {
+fn get_contract(payload: Json<DeployContract>) -> Result<Json<Vec<ContractCompiled>>, BadRequest<String>> {
 
     write_file(&payload.specification_file.content, &payload.specification_file.name);
 
@@ -72,7 +84,7 @@ async fn get_contract(payload: Json<DeployContract>) -> Result<Json<Vec<Contract
     let imp = get_implementation(Path::new(&impl_url)).unwrap();
 
     let result = verify_deploy_contract(Path::new(&impl_url), Path::new(&spec_url), &imp, &spec, 
-                                &payload.specification_id, &mut payload.constructor_arguments.clone()).await;
+                                &payload.specification_id, &mut payload.constructor_arguments.clone());
 
     if let Err(error) = &result {
         return Err(BadRequest(Some(error.to_string())));
@@ -110,7 +122,7 @@ async fn get_contract(payload: Json<DeployContract>) -> Result<Json<Vec<Contract
 
 
 #[post("/upgradecontract/<author_wallet>/<chain_id>", format = "json", data = "<payload>")]
-async fn upgrade_contract_file(author_wallet:String, chain_id:String, payload:Json<UpgradeContract>) -> Result<Json<Vec<ContractCompiled>>, BadRequest<String>> {
+fn upgrade_contract_file(author_wallet:String, chain_id:String, payload:Json<UpgradeContract>) -> Result<Json<Vec<ContractCompiled>>, BadRequest<String>> {
     
     for file in &payload.implementation_files {
         write_file(&file.content, &file.name);
@@ -123,7 +135,7 @@ async fn upgrade_contract_file(author_wallet:String, chain_id:String, payload:Js
     let impl_url = format!("contracts/input/{}", &payload.file_to_be_verified);
     let author_wallet_address = Address::from_str(author_wallet.as_str()).unwrap();
     
-    let result = upgrade_contract(Path::new(&impl_url), &imp, &payload.specification_id, &author_wallet_address, &chain_id).await;
+    let result = upgrade_contract(Path::new(&impl_url), &imp, &payload.specification_id, &author_wallet_address, &chain_id);
 
     if let Err(error) = &result {
         return Err(BadRequest(Some(error.to_string())));
@@ -163,6 +175,16 @@ fn save_log(payload: Json<Logs>) -> Result<(), BadRequest<String>> {
     }
     
     Ok(())
+}
+
+#[get("/helloc")]
+fn helloc(cors: Guard<'_>) -> Responder<'_, &str> {
+    cors.responder("Hello CORS!")
+}
+
+#[get("/hello")]
+fn hello() -> &'static str {
+    "Hello, world!"
 }
 
 
@@ -208,28 +230,33 @@ fn save_log(payload: Json<Logs>) -> Result<(), BadRequest<String>> {
 //     Ok(())
 // }
 
+use rocket::Route;
 
+use std::convert::From;
 
-
-#[launch]
-fn rocket() -> _ {
+fn main() -> Result<(), Error> {
     let cors = rocket_cors::CorsOptions {
         allowed_origins: AllowedOrigins::all(),
-        allowed_methods: vec![Method::Get,Method::Post,Method::Patch].into_iter().map(From::from).collect(),
+        allowed_methods: vec![Method::Get,Method::Post,Method::Options, Method::Patch].into_iter().map(From::from).collect(),
         allowed_headers: AllowedHeaders::all(),
         allow_credentials: true,
         ..Default::default()
     }
     .to_cors()?;
 
-    rocket::build()
+    rocket::ignite()
     .mount("/", routes![list_upgrades])
     .mount("/", routes![get_constructor_arguments])
     .mount("/", routes![upgrade_contract_file])
     .mount("/", routes![get_contract])
     .mount("/", routes![save_log])
+    .mount("/", routes![hello])
+    .mount("/", routes![helloc])
     .mount("/", rocket_cors::catch_all_options_routes())
     .manage(cors)
+    .launch();
+
+    Ok(())
 }
 
 
@@ -278,24 +305,24 @@ pub struct File {
 }
 
 
-pub struct CORS;
+// pub struct CORS;
 
-#[rocket::async_trait]
-impl Fairing for CORS {
-    fn info(&self) -> Info {
-        Info {
-            name: "Add CORS headers to responses",
-            kind: Kind::Response
-        }
-    }
+// #[rocket::async_trait]
+// impl Fairing for CORS {
+//     fn info(&self) -> Info {
+//         Info {
+//             name: "Add CORS headers to responses",
+//             kind: Kind::Response
+//         }
+//     }
 
-    async fn on_response<'r>(&self,request: &'r Request<'_>,response: &mut Response<'r>) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
-    }
-}
+//     async fn on_response<'r>(&self,request: &'r Request<'_>,response: &mut Response<'r>) {
+//         response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+//         response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+//         response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+//         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+//     }
+// }
 
 
 use web3::{

@@ -22,7 +22,7 @@ use std::fs;
 use ethabi::{Token, Param, Function, ParamType};
 use web3::types::Bytes;
 // use crate::deployer::{get_connection};
-use rocket::serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize};
 use std::future::Future;
 
 #[derive(Debug,Clone, Serialize,Deserialize)]

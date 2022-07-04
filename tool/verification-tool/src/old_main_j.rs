@@ -21,7 +21,7 @@ use crate::{checker::{check_synctatic_conformance, generate_merge_contract},
             db::{insert_on_table, select_on_table} };
 
 
-pub async fn verify_deploy_contract(impl_path_input: &Path, spec_path_input: &Path, imp: &Implementation, 
+pub fn verify_deploy_contract(impl_path_input: &Path, spec_path_input: &Path, imp: &Implementation, 
     spec: &Specification, spec_id: &String, parameters_and_values: &mut Vec<AssignedVariable>) -> Result<(), String> {
 
     if let Err(_) = fs::copy("contracts/registry.sol", "contracts/input/registry.sol") {
@@ -87,7 +87,7 @@ pub fn get_implementation(impl_url: &Path) -> Result<Implementation, String>{
 }
 
 
-pub async fn upgrade_contract(impl_path_input: &Path, imp: &Implementation, spec_id: &String, author_account: &Address, chain_id:&String) -> Result<(), String> {
+pub fn upgrade_contract(impl_path_input: &Path, imp: &Implementation, spec_id: &String, author_account: &Address, chain_id:&String) -> Result<(), String> {
 
     //copying registry
     if let Err(_) = fs::copy("contracts/registry.sol", "contracts/input/registry.sol") {
