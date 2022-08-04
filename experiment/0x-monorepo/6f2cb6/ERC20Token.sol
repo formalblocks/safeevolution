@@ -1,12 +1,12 @@
 pragma solidity >=0.4.24 <0.9.0;
 
-import "./Token_v2.sol";
 
 /// @notice  invariant  totalSupply  ==  __verifier_sum_uint(balances)
-contract ERC20Token is Token_v2 {
+contract ERC20Token  {
 
     /// @notice  postcondition ( ( balances[msg.sender] ==  __verifier_old_uint (balances[msg.sender] ) - _value  && msg.sender  != _to ) || ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender]) && msg.sender  == _to ) &&  success ) || !success
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  && msg.sender  != _to ) || ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) && msg.sender  == _to ) &&  success ) || !success
+    /// @notice  postcondition forall (address addr) addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
     /// @notice  emits Transfer 
     function transfer(address _to, uint _value)
         public
@@ -23,6 +23,7 @@ contract ERC20Token is Token_v2 {
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  &&  _from  != _to ) || ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) &&  _from  == _to ) &&  success ) || !success
     /// @notice  postcondition ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value ) || ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) && !success) ||  _from  == msg.sender
     /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
+    /// @notice  postcondition forall (address addr) addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
     /// @notice  emits  Transfer
     function transferFrom(address _from, address _to, uint _value)
         public 
@@ -68,4 +69,6 @@ contract ERC20Token is Token_v2 {
     mapping (address => uint) balances;
     mapping (address => mapping (address => uint)) allowed;
     uint public totalSupply;
+    event Transfer(address indexed _from, address indexed _to, uint _value);
+    event Approval(address indexed _owner, address indexed _spender, uint _value);
 }

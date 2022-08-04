@@ -1,12 +1,9 @@
 
 
 pragma solidity >=0.4.24 <0.9.0;
-pragma experimental ABIEncoderV2;
-
-import "./IERC20Token.sol";
 
 /// @notice  invariant  totalSupply  ==  __verifier_sum_uint(balances)
-contract ERC20Token is IERC20Token {
+contract ERC20Token  {
 
     mapping (address => uint256) internal balances;
     mapping (address => mapping (address => uint256)) internal allowed;
@@ -15,6 +12,7 @@ contract ERC20Token is IERC20Token {
 
     /// @notice  postcondition ( ( balances[msg.sender] ==  __verifier_old_uint (balances[msg.sender] ) - _value  && msg.sender  != _to ) || ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender]) && msg.sender  == _to ) &&  success ) || !success
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  && msg.sender  != _to ) || ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) && msg.sender  == _to ) &&  success ) || !success
+    /// @notice  postcondition forall (address addr) addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
     /// @notice  emits Transfer 
     function transfer(address _to, uint256 _value)
         public
@@ -38,6 +36,7 @@ contract ERC20Token is IERC20Token {
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  &&  _from  != _to ) || ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) &&  _from  == _to ) &&  success ) || !success
     /// @notice  postcondition ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value ) || ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) && !success) ||  _from  == msg.sender
     /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
+     /// @notice  postcondition forall (address addr) addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
     /// @notice  emits  Transfer
     function transferFrom(address _from, address _to, uint256 _value)
         public
@@ -90,4 +89,16 @@ contract ERC20Token is IERC20Token {
     {
         return allowed[_owner][_spender];
     }
+
+     event Transfer(
+        address indexed _from,
+        address indexed _to,
+        uint256 _value
+    );
+    
+    event Approval(
+        address indexed _owner,
+        address indexed _spender,
+        uint256 _value
+    );
 }
