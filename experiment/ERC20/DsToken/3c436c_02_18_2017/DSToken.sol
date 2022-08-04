@@ -1,19 +1,3 @@
-/*
-   Copyright 2017 Nexus Development, LLC
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.5.0;
 // pragma solidity ^0.4.8;
@@ -32,6 +16,7 @@ contract DSToken is IERC20 {
 
     /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - x  && msg.sender  != dst ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == dst ) &&  ok )   || !ok
     /// @notice  postcondition ( ( _balances[dst] ==  __verifier_old_uint ( _balances[dst] ) + x  && msg.sender  != dst ) ||   ( _balances[dst] ==  __verifier_old_uint ( _balances[dst] ) && msg.sender  == dst ) &&  ok )   || !ok
+    /// @notice  postcondition forall (address addr) addr == msg.sender || addr == _to || __verifier_old_uint(_balances[addr]) == _balances[addr]
     /// @notice  emits  Transfer 
     function transfer(address dst, uint x) public returns (bool ok) {
         assert(_rules.canTransfer(msg.sender, msg.sender, dst, x));
@@ -42,6 +27,7 @@ contract DSToken is IERC20 {
     /// @notice  postcondition ( ( _balances[dst] ==  __verifier_old_uint ( _balances[dst] ) + x  &&  src  != dst ) ||   ( _balances[dst] ==  __verifier_old_uint ( _balances[dst] ) &&  src  ==dst ) &&  ok )   || !ok
     /// @notice  postcondition  (_approvals[src ][msg.sender] ==  __verifier_old_uint (_approvals[src ][msg.sender] ) - x && ok) || (_approvals[src ][msg.sender] ==  __verifier_old_uint (_approvals[src ][msg.sender] ) && !ok) ||  src  == msg.sender
     /// @notice  postcondition  _approvals[src ][msg.sender]  <= __verifier_old_uint (_approvals[src ][msg.sender] ) ||  src  == msg.sender
+    /// @notice  postcondition forall (address addr) addr == src || addr == _to || __verifier_old_uint(_balances[addr]) == _balances[addr]
     /// @notice  emits  Transfer
     function transferFrom(address src, address dst, uint x) public returns (bool ok) {
         assert(_rules.canTransfer(msg.sender, src, dst, x));

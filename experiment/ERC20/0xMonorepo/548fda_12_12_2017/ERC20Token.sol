@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.5.0;
 // pragma solidity 0.4.18;
-import "./IERC20.sol";
 
 /// @notice  invariant  _totalSupply  ==  __verifier_sum_uint(balances)
-contract ERC20Token is IERC20 {
+contract ERC20Token  {
 
     uint constant MAX_UINT = 2**256 - 1;
 
@@ -14,6 +13,7 @@ contract ERC20Token is IERC20 {
     
     /// @notice  postcondition ( ( balances[msg.sender] ==  __verifier_old_uint (balances[msg.sender] ) - _value  && msg.sender  != _to ) ||   ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender]) && msg.sender  == _to ) &&  success )   || !success
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  && msg.sender  != _to ) ||   ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) && msg.sender  == _to )  )   || !success
+    /// @notice  postcondition forall (address addr) addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
     /// @notice  emits  Transfer 
     function transfer(address _to, uint _value)
         public
@@ -26,15 +26,12 @@ contract ERC20Token is IERC20 {
         return true;
     }
 
-    /// @dev ERC20 transferFrom, modified such that an allowance of MAX_UINT represents an unlimited allowance. See https://github.com/ethereum/EIPs/issues/717
-    /// @param _from Address to transfer from.
-    /// @param _to Address to transfer to.
-    /// @param _value Amount to transfer.
-    /// @return Success of transfer.
+
     /// @notice  postcondition ( ( balances[_from] ==  __verifier_old_uint (balances[_from] ) - _value  &&  _from  != _to ) || ( balances[_from] ==  __verifier_old_uint ( balances[_from] ) &&  _from == _to ) && success ) || !success 
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  &&  _from  != _to ) || ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) &&  _from  == _to ) && success ) || !success 
     /// @notice  postcondition ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value && success) || ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender]) && !success) ||  _from  == msg.sender
     /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
+    /// @notice  postcondition forall (address addr) addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
     /// @notice  emits  Transfer
     function transferFrom(address _from, address _to, uint _value)
         public 
