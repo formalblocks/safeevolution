@@ -61,6 +61,7 @@ contract ERC20 is IERC20 {
     /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  &&  from  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) &&  from  ==to ) &&  success )   || !success
     /// @notice  postcondition  (_allowed[from ][msg.sender] ==  __verifier_old_uint (_allowed[from ][msg.sender] ) - value && success) || (_allowed[from ][msg.sender] ==  __verifier_old_uint (_allowed[from ][msg.sender] ) && !success) || from  == msg.sender
     /// @notice  postcondition  _allowed[from ][msg.sender]  <= __verifier_old_uint (_allowed[from ][msg.sender] ) ||  from  == msg.sender
+    /// @notice  postcondition forall (address addr) addr == from || addr == to || __verifier_old_uint(_balances[addr]) == _balances[addr]
     /// @notice  emits  Transfer
     /// @notice  emits  Approval
     function transferFrom(address from, address to, uint256 value) public returns (bool success) {

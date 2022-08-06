@@ -128,6 +128,7 @@ contract ERC20 is Context, IERC20 {
      */
     /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - amount  && msg.sender  != recipient ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == recipient ) &&  success )   || !success
     /// @notice  postcondition ( ( _balances[recipient] ==  __verifier_old_uint ( _balances[recipient] ) + amount  && msg.sender  != recipient ) ||   ( _balances[recipient] ==  __verifier_old_uint ( _balances[recipient] ) && msg.sender  == recipient ) &&  success )   || !success
+    /// @notice  postcondition forall (address addr) addr == msg.sender || addr == recipient || __verifier_old_uint(_balances[addr]) == _balances[addr]
     /// @notice  emits  Transfer 
     function transfer(address recipient, uint256 amount) public  returns (bool success) {
         _transfer(_msgSender(), recipient, amount);
@@ -173,6 +174,7 @@ contract ERC20 is Context, IERC20 {
     /// @notice  postcondition ( ( _balances[recipient] ==  __verifier_old_uint ( _balances[recipient] ) + amount  &&  sender  != recipient ) ||   ( _balances[recipient] ==  __verifier_old_uint ( _balances[recipient] ) &&  sender  ==recipient ) &&  success )   || !success
     /// @notice  postcondition  (_allowances[sender ][msg.sender] ==  __verifier_old_uint (_allowances[sender ][msg.sender] ) - amount && success) || (_allowances[sender ][msg.sender] ==  __verifier_old_uint (_allowances[sender ][msg.sender] ) && !success) ||  sender  == msg.sender
     /// @notice  postcondition  _allowances[sender ][msg.sender]  <= __verifier_old_uint (_allowances[sender ][msg.sender] ) ||  sender  == msg.sender 
+    /// @notice  postcondition forall (address addr) addr == sender || addr == recipient || __verifier_old_uint(_balances[addr]) == _balances[addr]
     /// @notice  emits  Transfer 
     /// @notice emits Approval
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool success) {

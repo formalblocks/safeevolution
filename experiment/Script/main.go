@@ -12,19 +12,19 @@ import (
 )
 
 func run() {
-	searchDir := ""
+	searchDir := "C:/Users/estan/OneDrive/Documentos/workspace/safeevolution/experiment/ERC20"
 	records := make([][]string, 0)
 	title := []string{"Output", "File Name", "Execution Time", "Path", "File Folder", "File Repository"}
 	records = append(records, title)
 
 	e := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && (strings.Contains(f.Name(), "Token.sol") || f.Name() == "ERC1155.sol") {
+		if !f.IsDir() && (strings.Contains(f.Name(), "Token.sol")) {
 
 			slicePath := strings.Split(path, "\\")
 			slicePath = slicePath[:len(slicePath)-1]
 
 			start := time.Now()
-			c, err := exec.Command("cmd.exe", "/C", "docker run --rm -v "+strings.Join(slicePath, "/")+":/contracts solc-verify:0.7 /contracts/"+f.Name()).Output()
+			c, err := exec.Command("cmd.exe", "/C", "docker run --rm -v "+strings.Join(slicePath, "/")+":/contracts solcverify /contracts/"+f.Name()).Output()
 			duration := time.Since(start)
 
 			if err != nil {

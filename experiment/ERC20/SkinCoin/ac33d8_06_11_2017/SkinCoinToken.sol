@@ -41,10 +41,11 @@ contract SkinCoin is ERC20 {
 
   mapping (address => mapping (address => uint)) allowed;
 
-   /// @notice  postcondition ( ( balances[_from] ==  __verifier_old_uint (balances[_from] ) - _value  &&  _from  != _to ) ||   ( balances[_from] ==  __verifier_old_uint ( balances[_from] ) &&  _from== _to ) &&  success )   || !success
+  /// @notice  postcondition ( ( balances[_from] ==  __verifier_old_uint (balances[_from] ) - _value  &&  _from  != _to ) ||   ( balances[_from] ==  __verifier_old_uint ( balances[_from] ) &&  _from== _to ) &&  success )   || !success
   /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  &&  _from  != _to ) ||   ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) &&  _from  ==_to ) &&  success )   || !success
   /// @notice  postcondition  (allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value && success) || (allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) && !success) || _from  == msg.sender
   /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
+  /// @notice  postcondition forall (address addr) addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
   /// @notice  emits  Transfer
   function transferFrom(address _from, address _to, uint _value) public onlyPayloadSize(3 * 32) returns (bool success) {
     uint256 _allowance = allowed[_from][msg.sender];
@@ -93,6 +94,7 @@ contract SkinCoin is ERC20 {
 
   /// @notice  postcondition ( ( balances[msg.sender] ==  __verifier_old_uint (balances[msg.sender] ) - _value  && msg.sender  != _to ) ||   ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender]) && msg.sender  == _to ) &&  success )   || !success
   /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  && msg.sender  != _to ) ||   ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) && msg.sender  == _to ) &&  success )   || !success
+  /// @notice  postcondition forall (address addr) addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
   /// @notice  emits  Transfer 
   function transfer(address _to, uint _value) onlyPayloadSize(2 * 32) public returns (bool success) {
     balances[msg.sender] = balances[msg.sender].sub(_value);
