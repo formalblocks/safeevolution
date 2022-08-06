@@ -13,29 +13,29 @@ contract DSToken is IERC20 {
         if (!x) revert();
     }
 
-    /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - value  && msg.sender  != to ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == to ) &&  ok )   || !ok
-    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  && msg.sender  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) && msg.sender  == to ) &&  ok )   || !ok
-    /// @notice  postcondition forall (address addr) addr == msg.sender || addr == to || __verifier_old_uint(_balances[addr]) == _balances[addr]
+    /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - value  && msg.sender  != to ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == to ) &&  success )   || !success
+    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  && msg.sender  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) && msg.sender  == to ) &&  success )   || !success
+    /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == to || __verifier_old_uint(_balances[addr]) == _balances[addr]) && success || (__verifier_old_uint(balances[addr]) == balances[addr]) && !success
     /// @notice  emits  Transfer 
-    function transfer( address to, uint value) public returns (bool ok) {
+    function transfer( address to, uint value) public returns (bool success) {
         assert(_rules.canTransfer(msg.sender, msg.sender, to, value));
         return _transfer(to, value);
     }
 
-    /// @notice  postcondition ( ( _balances[from] ==  __verifier_old_uint (_balances[from] ) - value  &&  from  != to ) ||   ( _balances[from] ==  __verifier_old_uint ( _balances[from] ) &&  from== to ) &&  ok )   || !ok
-    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  &&  from  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) &&  from  ==to ) &&  ok )   || !ok
-    /// @notice  postcondition ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) - value && ok ) || ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) && !ok ) || from  == msg.sender
+    /// @notice  postcondition ( ( _balances[from] ==  __verifier_old_uint (_balances[from] ) - value  &&  from  != to ) ||   ( _balances[from] ==  __verifier_old_uint ( _balances[from] ) &&  from== to ) &&  success )   || !success
+    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  &&  from  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) &&  from  ==to ) &&  success )   || !success
+    /// @notice  postcondition ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) - value && success ) || ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) && !success ) || from  == msg.sender
     /// @notice  postcondition  _approvals[from ][msg.sender]  <= __verifier_old_uint (_approvals[from ][msg.sender] ) ||  from  == msg.sender
-    /// @notice  postcondition forall (address addr) addr == from || addr == to || __verifier_old_uint(_balances[addr]) == _balances[addr]
+    /// @notice  postcondition forall (address addr) (addr == from || addr == to || __verifier_old_uint(_balances[addr]) == _balances[addr]) && success || (__verifier_old_uint(_balances[addr]) == _balances[addr]) && !success
     /// @notice  emits  Transfer
-    function transferFrom(address from, address to, uint value) public returns (bool ok) {
+    function transferFrom(address from, address to, uint value) public returns (bool success) {
         assert(_rules.canTransfer(msg.sender, from, to, value));
         return _transferFrom(from, to, value);
     }
 
-    /// @notice  postcondition (_approvals[msg.sender ][ spender] ==  value  &&  ok) || ( _approvals[msg.sender ][ spender] ==  __verifier_old_uint ( _approvals[msg.sender ][ spender] ) && !ok )    
+    /// @notice  postcondition (_approvals[msg.sender ][ spender] ==  value  &&  success) || ( _approvals[msg.sender ][ spender] ==  __verifier_old_uint ( _approvals[msg.sender ][ spender] ) && !success )    
     /// @notice  emits  Approval
-    function approve(address spender, uint value) public returns (bool ok) {
+    function approve(address spender, uint value) public returns (bool success) {
         assert(_rules.canApprove(msg.sender, spender, value));
         return _approve(spender, value);
     }
@@ -72,10 +72,11 @@ contract DSToken is IERC20 {
         return _balances[who];
     }
 
-     /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - value  && msg.sender  != to ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == to ) &&  ok )   || !ok
-    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  && msg.sender  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) && msg.sender  == to ) &&  ok )   || !ok
+     /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - value  && msg.sender  != to ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == to ) &&  success )   || !success
+    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  && msg.sender  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) && msg.sender  == to ) &&  success )   || !success
+    /// @notice  postcondition value >= 0
     /// @notice  emits  Transfer 
-    function _transfer( address to, uint value) public returns (bool ok) {
+    function _transfer( address to, uint value) public returns (bool success) {
         if( _balances[msg.sender] < value ) {
             revert();
         }
@@ -88,12 +89,13 @@ contract DSToken is IERC20 {
         return true;
     }
 
-    /// @notice  postcondition ( ( _balances[from] ==  __verifier_old_uint (_balances[from] ) - value  &&  from  != to ) ||   ( _balances[from] ==  __verifier_old_uint ( _balances[from] ) &&  from== to ) &&  ok )   || !ok
-    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  &&  from  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) &&  from  ==to ) &&  ok )   || !ok
-    /// @notice  postcondition ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) - value && ok)  || ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) && !ok ) || from  == msg.sender
+    /// @notice  postcondition ( ( _balances[from] ==  __verifier_old_uint (_balances[from] ) - value  &&  from  != to ) ||   ( _balances[from] ==  __verifier_old_uint ( _balances[from] ) &&  from== to ) &&  success )   || !success
+    /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  &&  from  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) &&  from  ==to ) &&  success )   || !success
+    /// @notice  postcondition ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) - value && success)  || ( _approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) && !success ) || from  == msg.sender
     /// @notice  postcondition  _approvals[from ][msg.sender]  <= __verifier_old_uint (_approvals[from ][msg.sender] ) ||  from  == msg.sender
+    /// @notice  postcondition value >= 0
     /// @notice  emits  Transfer
-    function _transferFrom( address from, address to, uint value) public returns (bool ok) {
+    function _transferFrom( address from, address to, uint value) public returns (bool success) {
         // if you don't have enough balance, throw
         if( _balances[from] < value ) {
             revert();
@@ -113,9 +115,9 @@ contract DSToken is IERC20 {
         return true;
     }
 
-    /// @notice  postcondition (_approvals[msg.sender ][ spender] ==  value  &&  ok) || ( _approvals[msg.sender ][ spender] ==  __verifier_old_uint ( _approvals[msg.sender ][ spender] ) && !ok )    
+    /// @notice  postcondition (_approvals[msg.sender ][ spender] ==  value  &&  success) || ( _approvals[msg.sender ][ spender] ==  __verifier_old_uint ( _approvals[msg.sender ][ spender] ) && !success )    
     /// @notice  emits  Approval
-    function _approve(address spender, uint value) public returns (bool ok) {
+    function _approve(address spender, uint value) public returns (bool success) {
         _approvals[msg.sender][spender] = value;
         emit Approval( msg.sender, spender, value );
         return true;

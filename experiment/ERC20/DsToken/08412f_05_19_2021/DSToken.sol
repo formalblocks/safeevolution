@@ -36,9 +36,9 @@ contract DSToken is DSMath {
         return approve(guy, uint(-1));
     }
 
-    /// @notice  postcondition (allowance[msg.sender ][ guy] ==  wad  &&  ok) || ( allowance[msg.sender ][ guy] ==  __verifier_old_uint ( allowance[msg.sender ][ guy] ) && !ok )    
+    /// @notice  postcondition (allowance[msg.sender ][ guy] ==  wad  &&  success) || ( allowance[msg.sender ][ guy] ==  __verifier_old_uint ( allowance[msg.sender ][ guy] ) && !success )    
     /// @notice  emits  Approval
-    function approve(address guy, uint wad) public stoppable returns (bool ok) {
+    function approve(address guy, uint wad) public stoppable returns (bool success) {
         allowance[msg.sender][guy] = wad;
 
         emit Approval(msg.sender, guy, wad);
@@ -46,24 +46,26 @@ contract DSToken is DSMath {
         return true;
     }
 
-    /// @notice  postcondition ( ( balanceOf[msg.sender] ==  __verifier_old_uint (balanceOf[msg.sender] ) - wad  && msg.sender  != dst ) ||   ( balanceOf[msg.sender] ==  __verifier_old_uint ( balanceOf[msg.sender]) && msg.sender  == dst ) &&  ok )   || !ok
-    /// @notice  postcondition ( ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) + wad  && msg.sender  != dst ) ||   ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) && msg.sender  == dst ) &&  ok )   || !ok
+    /// @notice  postcondition ( ( balanceOf[msg.sender] ==  __verifier_old_uint (balanceOf[msg.sender] ) - wad  && msg.sender  != dst ) ||   ( balanceOf[msg.sender] ==  __verifier_old_uint ( balanceOf[msg.sender]) && msg.sender  == dst ) &&  success )   || !success
+    /// @notice  postcondition ( ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) + wad  && msg.sender  != dst ) ||   ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) && msg.sender  == dst ) &&  success )   || !success
     /// @notice  postcondition forall (address addr) addr == msg.sender || addr == dst || __verifier_old_uint(balanceOf[addr]) == balanceOf[addr]
+    /// @notice  postcondition wad >= 0
     /// @notice  emits  Transfer 
-    function transfer(address dst, uint wad) external returns (bool ok) {
+    function transfer(address dst, uint wad) external returns (bool success) {
         return transferFrom(msg.sender, dst, wad);
     }
 
-    /// @notice  postcondition ( ( balanceOf[src] ==  __verifier_old_uint (balanceOf[src] ) - wad  &&  src  != dst ) ||   ( balanceOf[src] ==  __verifier_old_uint ( balanceOf[src] ) &&  src== dst ) &&  ok )   || !ok
-    /// @notice  postcondition ( ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) + wad  &&  src  != dst ) ||   ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) &&  src  ==dst ) &&  ok )   || !ok
-    /// @notice  postcondition ( allowance[src ][msg.sender] ==  __verifier_old_uint (allowance[src ][msg.sender] ) - wad && ok)  || ( allowance[src ][msg.sender] ==  __verifier_old_uint (allowance[src ][msg.sender] ) && !ok) || src  == msg.sender
+    /// @notice  postcondition ( ( balanceOf[src] ==  __verifier_old_uint (balanceOf[src] ) - wad  &&  src  != dst ) ||   ( balanceOf[src] ==  __verifier_old_uint ( balanceOf[src] ) &&  src== dst ) &&  success )   || !success
+    /// @notice  postcondition ( ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) + wad  &&  src  != dst ) ||   ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) &&  src  ==dst ) &&  success )   || !success
+    /// @notice  postcondition ( allowance[src ][msg.sender] ==  __verifier_old_uint (allowance[src ][msg.sender] ) - wad && success)  || ( allowance[src ][msg.sender] ==  __verifier_old_uint (allowance[src ][msg.sender] ) && !success) || src  == msg.sender
     /// @notice  postcondition  allowance[src ][msg.sender]  <= __verifier_old_uint (allowance[src ][msg.sender] ) ||  src  == msg.sender
     /// @notice  postcondition forall (address addr) addr == src || addr == dst || __verifier_old_uint(balanceOf[addr]) == balanceOf[addr]
+    /// @notice  postcondition wad >= 0
     /// @notice  emits  Transfer
     function transferFrom(address src, address dst, uint wad)
         public
         stoppable
-        returns (bool ok)
+        returns (bool success)
     {
         if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
             require(allowance[src][msg.sender] >= wad, "ds-token-insufficient-approval");

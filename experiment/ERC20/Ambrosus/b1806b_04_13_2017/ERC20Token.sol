@@ -4,16 +4,13 @@ pragma solidity >= 0.5.0;
 
 import "./IERC20.sol";
 
-/// @title ERC20 Token
-/// @author Melonport AG <team@melonport.com>
-/// @notice Original taken from https://github.com/ethereum/EIPs/issues/20
-/// @notice Checked against integer overflow
 /// @notice  invariant  totalSupply_  ==  __verifier_sum_uint(balances)
 contract ERC20 is IERC20 {
 
     /// @notice  postcondition ( ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender] ) - _value  && msg.sender  != _to ) ||   ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender]) && msg.sender  == _to ) &&  success ) || !success
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  && msg.sender  != _to ) ||   ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) && msg.sender  == _to ) &&  success ) || !success
-        /// @notice  postcondition forall (address addr) addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
+    /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]) && success || (__verifier_old_uint(balances[addr]) == balances[addr]) && !success
+    /// @notice  postcondition _value >= 0
     /// @notice  emits  Transfer
     function transfer(address _to, uint256 _value) public returns (bool success) {
         if (balances[msg.sender] >= _value && balances[_to] + _value > balances[_to]) {
@@ -28,7 +25,8 @@ contract ERC20 is IERC20 {
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  &&  _from  != _to ) ||   ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) &&  _from  ==_to ) &&  success )   || !success
     /// @notice  postcondition ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value && success) || ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) && !success) ||  _from  == msg.sender
     /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
-    /// @notice  postcondition forall (address addr) addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
+    /// @notice  postcondition forall (address addr) (addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]) && success || (__verifier_old_uint(balances[addr]) == balances[addr]) && !success
+    /// @notice  postcondition _value >= 0
     /// @notice  emits  Transfer
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
         if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value && balances[_to] + _value > balances[_to]) {

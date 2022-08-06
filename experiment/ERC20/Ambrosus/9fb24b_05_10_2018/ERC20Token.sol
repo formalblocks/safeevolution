@@ -52,38 +52,11 @@ contract Amber is SafeMath {
       totalSupply_ = 0;
     }
     
-    function preallocateToken(address recipient, uint amount)
-        external
-        only_minter
-        max_total_token_amount_not_reached(amount)
-    {
-        preallocatedBalances[recipient] = safeAdd(preallocatedBalances[recipient], amount);
-        totalSupply_ = safeAdd(totalSupply_, amount);
-    }
-    
-    function unlockBalance(address recipient) public
-        is_later_than(endTime + THAWING_DURATION)
-    {
-        balances[recipient] = safeAdd(balances[recipient], preallocatedBalances[recipient]);
-        preallocatedBalances[recipient] = 0;
-    }
-
-    function preallocatedBalanceOf(address _owner) public returns (uint balance) {
-        return preallocatedBalances[_owner];
-    }
-
-    function mintLiquidToken(address recipient, uint amount)
-        external
-        only_minter
-        max_total_token_amount_not_reached(amount)
-    {
-        balances[recipient] = safeAdd(balances[recipient], amount);
-        totalSupply_ = safeAdd(totalSupply_, amount);
-    }
 
     /// @notice  postcondition ( ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender] ) - _value  && msg.sender  != _to ) ||   ( balances[msg.sender] ==  __verifier_old_uint ( balances[msg.sender]) && msg.sender  == _to ) &&  success ) || !success
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  && msg.sender  != _to ) ||   ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) && msg.sender  == _to ) &&  success ) || !success
-    /// @notice  postcondition forall (address addr) addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
+    /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr])  && success || (__verifier_old_uint(balances[addr]) == balances[addr]) && !success
+    /// @notice  postcondition _value >= 0
     /// @notice  emits  Transfer
     function transfer(address _to, uint256 _value) public
       is_later_than(endTime)
@@ -96,7 +69,8 @@ contract Amber is SafeMath {
     /// @notice  postcondition ( ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) + _value  &&  _from  != _to ) ||   ( balances[_to] ==  __verifier_old_uint ( balances[_to] ) &&  _from  ==_to ) &&  success )   || !success
     /// @notice  postcondition ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value && success) || ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) && !success) ||  _from  == msg.sender
     /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
-    /// @notice  postcondition forall (address addr) addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr]
+    /// @notice  postcondition forall (address addr) (addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr])  && success || (__verifier_old_uint(balances[addr]) == balances[addr]) && !success
+    /// @notice  postcondition _value >= 0
     /// @notice  emits  Transfer
     function transferFrom(address _from, address _to, uint256 _value) public
       is_later_than(endTime)
