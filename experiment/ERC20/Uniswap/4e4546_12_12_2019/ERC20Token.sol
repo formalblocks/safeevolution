@@ -73,7 +73,6 @@ contract ERC20 is IERC20 {
     /// @notice  postcondition ( ( balanceOf_[msg.sender] ==  __verifier_old_uint (balanceOf_[msg.sender] ) - value  && msg.sender  != to ) ||   ( balanceOf_[msg.sender] ==  __verifier_old_uint ( balanceOf_[msg.sender]) && msg.sender  == to ) &&  success )   || !success
     /// @notice  postcondition ( ( balanceOf_[to] ==  __verifier_old_uint ( balanceOf_[to] ) + value  && msg.sender  != to ) ||   ( balanceOf_[to] ==  __verifier_old_uint ( balanceOf_[to] ) && msg.sender  == to ) &&  success )   || !success
     /// @notice  postcondition forall (address addr) addr == msg.sender || addr == to || __verifier_old_uint(balanceOf_[addr]) == balanceOf_[addr]
-    /// @notice  postcondition value >= 0
     /// @notice  emits  Transfer 
     function transfer(address to, uint value) external returns (bool success) {
         _transfer(msg.sender, to, value);
@@ -96,8 +95,7 @@ contract ERC20 is IERC20 {
     /// @notice  postcondition ( ( balanceOf_[to] ==  __verifier_old_uint ( balanceOf_[to] ) + value  &&  from  != to ) ||   ( balanceOf_[to] ==  __verifier_old_uint ( balanceOf_[to] ) &&  from  ==to ) &&  success )   || !success
     /// @notice  postcondition  (allowance_[from ][msg.sender] ==  __verifier_old_uint (allowance_[from ][msg.sender] ) - value && success)  || (allowance_[from ][msg.sender] ==  __verifier_old_uint (allowance_[from ][msg.sender] ) && !success) || from  == msg.sender
     /// @notice  postcondition  allowance_[from ][msg.sender]  <= __verifier_old_uint (allowance_[from ][msg.sender] ) ||  from  == msg.sender
-    /// @notice  postcondition forall (address addr) addr == from || addr == to || __verifier_old_uint(balanceOf_[addr]) == balanceOf_[addr]
-    /// @notice  postcondition value >= 0
+    /// @notice  postcondition  forall (address addr) addr == from || addr == to || __verifier_old_uint(balanceOf_[addr]) == balanceOf_[addr]
     /// @notice  emits  Transfer
     function transferFrom(address from, address to, uint value) external returns (bool success) {
         if (allowance_[from][msg.sender] != uint(-1)) {

@@ -17,7 +17,6 @@ contract DSToken is IERC20 {
     /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - x  && msg.sender  != dst ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == dst ) &&  success )   || !success
     /// @notice  postcondition ( ( _balances[dst] ==  __verifier_old_uint ( _balances[dst] ) + x  && msg.sender  != dst ) ||   ( _balances[dst] ==  __verifier_old_uint ( _balances[dst] ) && msg.sender  == dst ) &&  success )   || !success
     /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == _to || __verifier_old_uint(_balances[addr]) == _balances[addr]) && success || (__verifier_old_uint(balances[addr]) == balances[addr]) && !success
-    /// @notice  postcondition x >= 0
     /// @notice  emits  Transfer 
     function transfer(address dst, uint x) public returns (bool success) {
         assert(_rules.canTransfer(msg.sender, msg.sender, dst, x));
@@ -29,7 +28,6 @@ contract DSToken is IERC20 {
     /// @notice  postcondition  (_approvals[src ][msg.sender] ==  __verifier_old_uint (_approvals[src ][msg.sender] ) - x && success) || (_approvals[src ][msg.sender] ==  __verifier_old_uint (_approvals[src ][msg.sender] ) && !success) ||  src  == msg.sender
     /// @notice  postcondition  _approvals[src ][msg.sender]  <= __verifier_old_uint (_approvals[src ][msg.sender] ) ||  src  == msg.sender
     /// @notice  postcondition forall (address addr) (addr == src || addr == _to || __verifier_old_uint(_balances[addr]) == _balances[addr]) && success || (__verifier_old_uint(_balances[addr]) == _balances[addr]) && !success
-    /// @notice  postcondition x >= 0
     /// @notice  emits  Transfer
     function transferFrom(address src, address dst, uint x) public returns (bool success) {
         assert(_rules.canTransfer(msg.sender, src, dst, x));

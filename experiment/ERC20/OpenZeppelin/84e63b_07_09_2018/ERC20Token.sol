@@ -79,7 +79,6 @@ contract ERC20 is IERC20 {
   /// @notice  postcondition ( ( balances_[msg.sender] ==  __verifier_old_uint (balances_[msg.sender] ) - _value  && msg.sender  != _to ) ||   ( balances_[msg.sender] ==  __verifier_old_uint ( balances_[msg.sender]) && msg.sender  == _to ) &&  success )   || !success
   /// @notice  postcondition ( ( balances_[_to] ==  __verifier_old_uint ( balances_[_to] ) + _value  && msg.sender  != _to ) ||   ( balances_[_to] ==  __verifier_old_uint ( balances_[_to] ) && msg.sender  == _to ) &&  success )   || !success
   /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == to || __verifier_old_uint(balances_[addr]) == balances_[addr]) && success || (__verifier_old_uint(_balances[addr]) == _balances[addr]) && !success
-  /// @notice  postcondition _value >= 0
   /// @notice  emits  Transfer 
   function transfer(address _to, uint256 _value) public returns (bool success) {
     require(_value <= balances_[msg.sender]);
@@ -121,7 +120,6 @@ contract ERC20 is IERC20 {
   /// @notice  postcondition ( allowed_[_from ][msg.sender] ==  __verifier_old_uint (allowed_[_from ][msg.sender] ) - _value && success) || ( allowed_[_from ][msg.sender] ==  __verifier_old_uint (allowed_[_from ][msg.sender] ) && !success) ||  _from  == msg.sender
   /// @notice  postcondition  allowed_[_from ][msg.sender]  <= __verifier_old_uint (allowed_[_from ][msg.sender] ) ||  _from  == msg.sender
   /// @notice  postcondition forall (address addr) (addr == _from || addr == _to || __verifier_old_uint(balances_[addr]) == balances_[addr]) && success || (__verifier_old_uint(_balances[addr]) == _balances[addr]) && !success
-  /// @notice  postcondition _value >= 0
   /// @notice  emits  Transfer 
   function transferFrom(
     address _from,

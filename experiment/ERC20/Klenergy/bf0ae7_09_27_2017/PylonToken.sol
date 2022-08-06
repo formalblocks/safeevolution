@@ -168,7 +168,6 @@ contract PylonToken is owned {
     /// @notice  postcondition ( ( balanceOf[msg.sender] ==  __verifier_old_uint (balanceOf[msg.sender] ) - _value  && msg.sender  != _to ) ||   ( balanceOf[msg.sender] ==  __verifier_old_uint ( balanceOf[msg.sender]) && msg.sender  == _to ) &&  success )   || !success
     /// @notice  postcondition ( ( balanceOf[_to] ==  __verifier_old_uint ( balanceOf[_to] ) + _value  && msg.sender  != _to ) ||   ( balanceOf[_to] ==  __verifier_old_uint ( balanceOf[_to] ) && msg.sender  == _to ) &&  success )   || !success
     /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == _to || __verifier_old_uint(balanceOf[addr]) == balanceOf[addr]) && success || (__verifier_old_uint(balanceOf[addr]) == balanceOf[addr]) && !success
-    /// @notice  postcondition _value >= 0
     /// @notice  emits  Transfer
     function transfer(address _to, uint256 _value) public {
         _transfer(msg.sender, _to, _value);

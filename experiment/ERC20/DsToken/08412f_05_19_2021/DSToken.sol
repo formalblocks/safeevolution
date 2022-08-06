@@ -49,7 +49,6 @@ contract DSToken is DSMath {
     /// @notice  postcondition ( ( balanceOf[msg.sender] ==  __verifier_old_uint (balanceOf[msg.sender] ) - wad  && msg.sender  != dst ) ||   ( balanceOf[msg.sender] ==  __verifier_old_uint ( balanceOf[msg.sender]) && msg.sender  == dst ) &&  success )   || !success
     /// @notice  postcondition ( ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) + wad  && msg.sender  != dst ) ||   ( balanceOf[dst] ==  __verifier_old_uint ( balanceOf[dst] ) && msg.sender  == dst ) &&  success )   || !success
     /// @notice  postcondition forall (address addr) addr == msg.sender || addr == dst || __verifier_old_uint(balanceOf[addr]) == balanceOf[addr]
-    /// @notice  postcondition wad >= 0
     /// @notice  emits  Transfer 
     function transfer(address dst, uint wad) external returns (bool success) {
         return transferFrom(msg.sender, dst, wad);
@@ -60,7 +59,6 @@ contract DSToken is DSMath {
     /// @notice  postcondition ( allowance[src ][msg.sender] ==  __verifier_old_uint (allowance[src ][msg.sender] ) - wad && success)  || ( allowance[src ][msg.sender] ==  __verifier_old_uint (allowance[src ][msg.sender] ) && !success) || src  == msg.sender
     /// @notice  postcondition  allowance[src ][msg.sender]  <= __verifier_old_uint (allowance[src ][msg.sender] ) ||  src  == msg.sender
     /// @notice  postcondition forall (address addr) addr == src || addr == dst || __verifier_old_uint(balanceOf[addr]) == balanceOf[addr]
-    /// @notice  postcondition wad >= 0
     /// @notice  emits  Transfer
     function transferFrom(address src, address dst, uint wad)
         public

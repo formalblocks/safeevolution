@@ -32,7 +32,6 @@ contract Token is TokenInterface {
   /// @notice  postcondition ( ( users[msg.sender].balance ==  __verifier_old_uint ( users[msg.sender].balance ) - _value && msg.sender  != _to ) || ( users[msg.sender].balance ==  __verifier_old_uint ( users[msg.sender].balance) && msg.sender  == _to ) &&  success ) || !success
   /// @notice  postcondition ( ( users[_to].balance ==  __verifier_old_uint ( users[_to].balance ) + _value  && msg.sender != _to ) || ( users[_to].balance ==  __verifier_old_uint ( users[_to].balance ) && msg.sender  == _to ) &&  success ) || !success
   /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == _to || __verifier_old_uint(users[addr].balance) == users[addr].balance) && success || (__verifier_old_uint(users[addr].balance) == users[addr].balance) && !success
-  /// @notice  postcondition _value >= 0
   /// @notice  emits Transfer 
   function transfer(address _to, uint256 _value) public returns (bool success) {
     if (users[msg.sender].balance >= _value && _value > 0) {
@@ -64,7 +63,6 @@ contract Token is TokenInterface {
   /// @notice  postcondition  (allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value && success) || (allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) && !success) ||  _from  == msg.sender
   /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
   /// @notice  postcondition  forall (address addr) (addr == _from || addr == _to || __verifier_old_uint(users[addr].balance) == users[addr].balance) && success || (__verifier_old_uint(users[addr].balance) == users[addr].balance) && !success
-  /// @notice  postcondition _value >= 0
   /// @notice  emits Transfer 
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
     if (users[_from].balance >= _value && allowed[_from][msg.sender] >= _value && _value > 0) {

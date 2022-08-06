@@ -70,7 +70,6 @@ contract Amber is SafeMath {
     /// @notice  postcondition ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) - _value && success) || ( allowed[_from ][msg.sender] ==  __verifier_old_uint (allowed[_from ][msg.sender] ) && !success) ||  _from  == msg.sender
     /// @notice  postcondition  allowed[_from ][msg.sender]  <= __verifier_old_uint (allowed[_from ][msg.sender] ) ||  _from  == msg.sender
     /// @notice  postcondition forall (address addr) (addr == _from || addr == _to || __verifier_old_uint(balances[addr]) == balances[addr])  && success || (__verifier_old_uint(balances[addr]) == balances[addr]) && !success
-    /// @notice  postcondition _value >= 0
     /// @notice  emits  Transfer
     function transferFrom(address _from, address _to, uint256 _value) public
       is_later_than(endTime)

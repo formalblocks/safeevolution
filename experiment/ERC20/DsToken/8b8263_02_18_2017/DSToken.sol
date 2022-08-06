@@ -33,7 +33,6 @@ contract DSToken is IERC20 {
     /// @notice  postcondition ( ( _balances[msg.sender] ==  __verifier_old_uint (_balances[msg.sender] ) - value  && msg.sender  != to ) ||   ( _balances[msg.sender] ==  __verifier_old_uint ( _balances[msg.sender]) && msg.sender  == to ) &&  success )   || !success
     /// @notice  postcondition ( ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) + value  && msg.sender  != to ) ||   ( _balances[to] ==  __verifier_old_uint ( _balances[to] ) && msg.sender  == to ) &&  success )   || !success
     /// @notice  postcondition forall (address addr) (addr == msg.sender || addr == to || __verifier_old_uint(_balances[addr]) == _balances[addr]) && success || (__verifier_old_uint(_balances[addr]) == _balances[addr]) && !success
-    /// @notice  postcondition value >= 0
     /// @notice  emits  Transfer 
     function transfer( address to, uint value) public returns (bool success) {
         if( _balances[msg.sender] < value ) {
@@ -53,7 +52,6 @@ contract DSToken is IERC20 {
     /// @notice  postcondition  (_approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) - value)  || (_approvals[from ][msg.sender] ==  __verifier_old_uint (_approvals[from ][msg.sender] ) && !success) || from  == msg.sender
     /// @notice  postcondition  _approvals[from ][msg.sender]  <= __verifier_old_uint (_approvals[from ][msg.sender] ) ||  from  == msg.sender
     /// @notice  postcondition forall (address addr) (addr == from || addr == to || __verifier_old_uint(_balances[addr]) == _balances[addr]) && success || (__verifier_old_uint(_balances[addr]) == _balances[addr]) && !success
-    /// @notice  postcondition value >= 0
     /// @notice  emits  Transfer
     function transferFrom( address from, address to, uint value) public returns (bool success) {
         // if you don't have enough balance, throw
