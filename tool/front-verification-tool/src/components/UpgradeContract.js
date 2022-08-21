@@ -38,6 +38,12 @@ const DeployContract = () => {
         setFilesImplementation(files_implementation);
     }
 
+    function clearVariables () {
+        setFilesImplementation([]);
+        setSpecificationId('');
+        setDropdownValue(null);
+    }
+
     async function upload_multiple_files(event) {
         const files = [...event.target.files].map(file => {
           const reader = new FileReader();
@@ -101,7 +107,6 @@ const DeployContract = () => {
             // update registry
 
             let registy_contract = new web3.eth.Contract(JSON.parse(contract.data[1].abi), contract.data[1].address);
-
             let spec_id_bytes32 = web3.utils.asciiToHex(specificationId);
 
             // console.log('address -> ', trx_contract_receipt.contractAddress, 'spec_id ->',  spec_id_bytes32)
@@ -119,7 +124,9 @@ const DeployContract = () => {
             let response_upgrade = await proxy_contract.methods.upgrade(trx_contract_receipt.contractAddress.trim())  
             .send({from: window.web3.currentProvider.selectedAddress, gasPrice: '2000000000000' });
             show_toast('info', 'Your contract was updated');
-            setLoading(false); 
+            setLoading(false);
+            
+            clearVariables();
 
             // let response_new_proxy = await proxy_contract.methods.get_selected().call();
             // console.log('response_new_proxy -> ', response_new_proxy);

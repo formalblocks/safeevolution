@@ -37,6 +37,14 @@ const DeployContract = () => {
     const web3 = new Web3(window.ethereum);
 
 
+    function clearVariables () {
+        setFilesSpecification([]);
+        setFilesImplementation([]);
+        setSpecificationId('');
+        setDropdownValue(null);
+        setConstructorArguments([]);
+    }
+
     useEffect(() => {
         async function fetchParameters() {
             try {
@@ -49,7 +57,8 @@ const DeployContract = () => {
                     setLoading(true); 
                     let result = await API.post(`getconstructorarguments`, contracts);
                     setConstructorArguments(result.data);
-                    setLoading(false); 
+                    setLoading(false);
+                    show_toast('info', 'The constructor parameters were parsed'); 
                 }
             } catch (error) {
                 setLoading(false);
@@ -103,7 +112,7 @@ const DeployContract = () => {
         
         setLoading(true); 
         let contract = await API.post(`getcontract`, contracts);
-        show_toast('info', 'Your was verified');
+        show_toast('info', 'Your contract was verified');
         setLoading(false); 
 
 
@@ -143,7 +152,7 @@ const DeployContract = () => {
         setLoading(false); 
 
 
-        let obj_proxy = constructorArguments;
+        let obj_proxy = constructorArguments.map((obj) => obj);
         
         obj_proxy.unshift({ variable_declaration: { visibility: "", typ : "address", name : "contract_address", storage_location : "",},  variable_value: trx_contract_receipt.contractAddress});
         obj_proxy.unshift({ variable_declaration: { visibility: "", typ : "bytes32", name : "spec_id", storage_location : "",},  variable_value: spec_id_bytes32});
@@ -161,9 +170,8 @@ const DeployContract = () => {
 
         let trx_contract_proxy = await web3.eth.getTransactionReceipt(txHashProxy);
 
-        let proxy_contract = new web3.eth.Contract(JSON.parse(contract.data[1].abi), trx_contract_proxy.contractAddress);
-        let response_new_proxy = await proxy_contract.methods.get_selected().call();
-
+        // let proxy_contract = new web3.eth.Contract(JSON.parse(contract.data[1].abi), trx_contract_proxy.contractAddress);
+        // let response_new_proxy = await proxy_contract.methods.get_selected().call();
         // console.log('response_new_proxy -> ', response_new_proxy);
 
         // save log
@@ -185,8 +193,10 @@ const DeployContract = () => {
 
         setLoading(true);   
         let log = await API.post(`savelog`, logs);
-        show_toast('info', 'Your was was saved');
-        setLoading(false); 
+        show_toast('info', 'Deploy logs were saved');
+        setLoading(false);
+        
+        clearVariables();
 
         } catch(error) {
             show_toast('error', 'There was an unexpected error');
@@ -279,31 +289,6 @@ const DeployContract = () => {
         return files_with_name;
       }
 
-    //   async function submit_form() {
-    //     if (check_data()) {
-    //         return;
-    //     }   
-    //     setLoading(true); 
-    //     let contracts = {
-    //        specification_file: filesSpecification[0], 
-    //        implementation_files: filesImplementation, 
-    //        specification_id: specificationId,
-    //        constructor_arguments: constructorArguments,
-    //        file_to_be_verified: dropdownValue ? dropdownValue.name : null,
-    //     }
-    //     try {
-    //         await API.post(`deploycontract/0x6519FEbb8b1A4618991d8E5bE03A130d0394A399`, contracts);
-    //         setLoading(false); 
-    //         show_toast('success', 'The deployment was sucessful');
-    //     } catch (error) {
-    //         setLoading(false);
-    //         if(error.response && error.response.status == 400) {
-    //             show_toast('error', error.response.data);
-    //         } else {
-    //             show_toast('error', 'The contract could not be deployed');
-    //         }
-    //     }
-    //   }
 
     return (
         <div className="grid">
